@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:3000/tasks";
+const API_URL = "http://localhost:3000/tasks"; //local
+// const API_URL = "Mock API URL"; 
 
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
@@ -21,6 +22,10 @@ async function loadTasks() {
         return;
     }
     emptyMessage.style.display = "none";
+
+    /* 
+    ELIMINAR TAREA POR TERMINAR 
+    
     tasks.forEach(task => {
         const li = document.createElement("li");
         li.innerHTML = `${task.title} 
@@ -29,6 +34,7 @@ async function loadTasks() {
         `;
         taskList.appendChild(li);
     });
+    */
 }
 
 // POST
