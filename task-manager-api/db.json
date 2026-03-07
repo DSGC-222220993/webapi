@@ -9,11 +9,6 @@
       "id": "6e75",
       "title": "nueva tarea",
       "completed": false
-    },
-    {
-      "id": "ac1a",
-      "title": "nueva tarea",
-      "completed": false
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

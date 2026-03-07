@@ -1,5 +1,5 @@
 const API_URL = "http://localhost:3000/tasks"; //local
-// const API_URL = "Mock API URL"; 
+// const API_URL = "en producción: https://MockAPI.com/tasks"; 
 
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
