@@ -1,5 +1,5 @@
-const API_URL = "http://localhost:3000/tasks"; //local
-// const API_URL = "en producción: https://MockAPI.com/tasks"; 
+//const API_URL = "http://localhost:3000/tasks"; //local
+const API_URL = "https://69aece6ac8b37f49983696e1.mockapi.io/tasks"; 
 
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
@@ -7,15 +7,20 @@ const taskList = document.getElementById("taskList");
 const emptyMessage = document.getElementById("emptyMessage");
 const statusMessage = document.getElementById("statusMessage");
 
+let messageTimer = null;
 
 window.addEventListener("DOMContentLoaded", loadTasks);
 
 function showMessage(text){
     statusMessage.textContent = text;
 
-    setTimeout(() => {
+    if(messageTimer){
+        clearTimeout(messageTimer);
+    }
+
+    messageTimer=setTimeout(() => {
         statusMessage.textContent = "";
-    }, 60000);
+    }, 10000);
 }
 
 // GET
@@ -70,7 +75,7 @@ async function addTask() {
     const title = taskInput.value;
 
     if (title.trim() === "") {
-        alert("Por favor, ingresa una tarea válida.");
+        showMessage("No puedes agregar una tarea vacía.");
         return;
     }
 
