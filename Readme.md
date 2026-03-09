@@ -2,7 +2,7 @@
 
 Este proyecto consiste en una aplicación web sencilla para la gestión de tareas que consume una Web API. La interfaz permite al usuario agregar nuevas tareas, eliminarlas y visualizar las tareas registradas mediante solicitudes HTTP a una API REST.
 
-Actualmente la API funciona de manera local utilizando json-server, lo cual permite simular un backend durante el desarrollo. En una fase posterior se planea utilizar una API pública como MockAPI para permitir el funcionamiento de la aplicación una vez desplegada en internet.
+Actualmente la API funciona de manera local utilizando json-server, lo cual permite simular un backend durante el desarrollo. En una fase posterior se planea utilizar una API pública como MockAPI para permitir el funcionamiento de la aplicación una vez desplegada en internet. (La WebApi ya cuenta con API online, cambios realizados 08/03/2026).
 
 ---
 
@@ -26,6 +26,7 @@ Si no existen tareas registradas, se mostrará un mensaje indicando que no hay t
 - JavaScript (Vanilla JS) → lógica y consumo de API
 - json-server → simulación de API REST local
 - Live Server (VS Code) → ejecución local del frontend
+- Mock API 
 
 Nada de frameworks ni librerias externas.
 
@@ -49,6 +50,15 @@ API disponible en: http://localhost:3000/tasks
 
 ---
 
+# Ejecución de la API online
+
+1. Crear proyecto.
+2. Dentro del proyecto creado agregar Resource.
+3. En Resource se agregan los mismos campos usados en db.json.
+4. Guardar cambios y obtener el endpoint
+5. Agrgar API_URL al script.
+
+---
 # Ejecución desde el frontend
 
 1. Descargar o clonar repositorio.
@@ -58,7 +68,7 @@ API disponible en: http://localhost:3000/tasks
 
 ---
 
-# NOTA
+# NOTA (Cambios ya realizados 09/03/2026)
 
 Actualmente el proyecto aún se encuentra en desarrollo.
 Las siguientes funcionalidades serán implementadas:
