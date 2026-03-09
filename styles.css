@@ -14,3 +14,46 @@ body{
     max-width:500px;
     text-align:center;
 }
+
+.task-input{
+    display:flex;
+    gap:10px;
+    margin-bottom:10px;
+}
+
+.task-input input{
+    flex:1;
+    padding:8px;
+}
+
+.task-input button{
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+ul{
+    list-style:none;
+    padding:0;
+    margin-top:15px;
+}
+
+li{
+    display:flex;
+    justify-content:space-between;
+    padding:8px;
+    border-bottom:1px solid #ddd;
+}
+
+.delete-btn{
+    background:#e74c3c;
+    border:none;
+    color:white;
+    padding:5px 10px;
+    cursor:pointer;
+}
+
+#statusMessage{
+    margin-top:10px;
+    font-size:14px;
+    color:#333;
+}
