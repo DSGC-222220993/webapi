@@ -15,7 +15,7 @@ Actualmente la API funciona de manera local utilizando json-server, lo cual perm
 
 Si no existen tareas registradas, se mostrará un mensaje indicando que no hay tareas pendientes.
 
-- Si se desea presionar botón eliminar para cada tarea.
+- Presionar botón eliminar para cada tarea.
 
 ---
 
