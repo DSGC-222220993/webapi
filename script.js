@@ -4,37 +4,64 @@ const API_URL = "http://localhost:3000/tasks"; //local
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
-const message = document.getElementById("emptyMessage");
+const emptyMessage = document.getElementById("emptyMessage");
+const statusMessage = document.getElementById("statusMessage");
+
 
 window.addEventListener("DOMContentLoaded", loadTasks);
 
+function showMessage(text){
+    statusMessage.textContent = text;
+
+    setTimeout(() => {
+        statusMessage.textContent = "";
+    }, 60000);
+}
+
 // GET
-async function loadTasks() {
+async function loadTasks(){
 
-    const response = await fetch(API_URL);
-    const tasks = await response.json();
+    try{
 
-    taskList.innerHTML = "";
+        const response = await fetch(API_URL);
 
-    if (tasks.length === 0) {
-        emptyMessage.style.display = "block";
-        message.textContent = "No hay tareas registradas";
-        return;
+        if(!response.ok){
+            throw new Error("Error al consultar la API");
+        }
+
+        const tasks = await response.json();
+
+        taskList.innerHTML = "";
+
+        if(tasks.length === 0){
+            emptyMessage.style.display = "block";
+            emptyMessage.textContent = "No hay tareas registradas";
+            return;
+        }
+
+        emptyMessage.style.display = "none";
+
+        tasks.forEach(task => {
+
+            const li = document.createElement("li");
+
+            li.innerHTML = `
+                ${task.title}
+                <button class="delete-btn" data-id="${task.id}">
+                    Eliminar
+                </button>
+            `;
+
+            taskList.appendChild(li);
+
+        });
+
+    }catch(error){
+
+        showMessage("No se pudo conectar con la API.");
+
     }
-    emptyMessage.style.display = "none";
 
-    /* 
-    ELIMINAR TAREA POR TERMINAR 
-    
-    tasks.forEach(task => {
-        const li = document.createElement("li");
-        li.innerHTML = `${task.title} 
-        <button class="delete-btn" onclick="deleteTask(${task.id})">
-            Eliminar</button>
-        `;
-        taskList.appendChild(li);
-    });
-    */
 }
 
 // POST
@@ -52,16 +79,61 @@ async function addTask() {
         completed: false
     };
 
-    await fetch(API_URL, {
+    try{
+        const response= await fetch(API_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(newTask)
     });
-    taskInput.value = "";
-    loadTasks();
+    if(!response.ok){
+            throw new Error("Error al agregar tarea");
+        }
+
+        showMessage("Tarea agregada correctamente.");
+
+        taskInput.value="";
+
+        loadTasks();
+
+    }catch(error){
+
+        showMessage("No se pudo agregar la tarea.");
+
+    }
 
 }
 
+// DELETE
+async function deleteTask(id){
+    try{
+        const response = await fetch(`${API_URL}/${id}`,{
+
+            method:"DELETE"
+        });
+
+        if(!response.ok){
+            throw new Error("Error al eliminar tarea");
+        }
+
+        showMessage("Tarea eliminada.");
+        loadTasks();
+
+    }catch(error){
+
+        showMessage("No se pudo eliminar la tarea.");
+
+    }
+
+}
+
+
 addBtn.addEventListener("click", addTask);
+
+taskList.addEventListener("click", function(e){
+    if(e.target.classList.contains("delete-btn")){
+        const id = e.target.getAttribute("data-id");
+        deleteTask(id);
+    }
+});
