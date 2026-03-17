@@ -35,6 +35,11 @@ async function login() {
     const typedUser = userInput.value;
     const typedPass = passInput.value;
 
+    if (!typedUser || !typedPass) {
+        showMessage("Por favor, ingresa usuario y contraseña.");
+        return;
+    }
+
     try {
         const response = await fetch(USERS_URL);
         const users = await response.json();
@@ -43,13 +48,19 @@ async function login() {
 
         if (validUser || (typedUser === "admin" && typedPass === "password")) {
             const sessionName = validUser ? (validUser.user || validUser.email) : "admin";
-            
-            const fakeToken = btoa(JSON.stringify({ user: sessionName, exp: Date.now() + 3600000 }));
+            const sessionId = validUser ? validUser.id : "0";
+
+            const fakeToken = btoa(JSON.stringify({ 
+                user: sessionName, 
+                userId: sessionId, 
+                exp: Date.now() + 3600000 
+            }));
+
             localStorage.setItem("token", fakeToken);
             
             userInput.value = "";
             passInput.value = "";
-            showMessage("Login exitoso. ¡Bienvenido!");
+            showMessage(`¡Bienvenido, ${sessionName}!`);
             checkAuth();
         } else {
             showMessage("Credenciales incorrectas.");
@@ -70,14 +81,17 @@ async function loadTasks() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
+    const userData = JSON.parse(atob(token));
+    const userId = userData.userId;
+
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(`${API_URL}?userId=${userId}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
         const tasks = await response.json();
         renderTasks(tasks);
     } catch (error) {
-        showMessage("Error al cargar tareas.");
+        showMessage("Error al cargar tus tareas.");
     }
 }
 
@@ -102,10 +116,16 @@ function renderTasks(tasks) {
 // POST
 async function addTask() {
     const title = taskInput.value;
-    if (!title.trim()) return showMessage("Escribe algo primero.");
+    if (!title.trim()) return;
 
     const token = localStorage.getItem("token");
-    const newTask = { title, completed: false };
+    const userData = JSON.parse(atob(token));
+
+    const newTask = { 
+        title: title, 
+        completed: false,
+        userId: userData.userId 
+    };
 
     try {
         await fetch(API_URL, {
@@ -118,8 +138,7 @@ async function addTask() {
         });
         taskInput.value = "";
         loadTasks();
-        showMessage("Tarea agregada.");
-    } catch (error) {
+    }catch (error) {
         showMessage("Error al guardar.");
     }
 }
