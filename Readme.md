@@ -17,6 +17,12 @@ Si no existen tareas registradas, se mostrará un mensaje indicando que no hay t
 
 - Presionar botón eliminar para cada tarea.
 
+# Otras funciones agregadas
+- Sistema de autenticación (validación de usuarios).
+- Gestioón privada mediante filtrado.
+- Operaciones/acciones vinculadas al perfil de forma individual.
+- Persistencia de sesión. Uso de tokens simulados (Base64) almacenados en localStorage.
+
 ---
 
 # Tecnologías utilizdas
@@ -35,6 +41,11 @@ Nada de frameworks ni librerias externas.
 # Diseño
 
 Diseño responsivo, centrado vertical y horizontalmentes en la pantallas.
+
+La aplicación presenta un diseño Neubrutalista Pixelado:
+- Colores vibrantes.
+- Contenedores estilo "consola retro" con bordes de 4px y sombras sólidas.
+- Botones e inputs con misma estética.
 
 ---
 
@@ -55,8 +66,10 @@ API disponible en: http://localhost:3000/tasks
 1. Crear proyecto.
 2. Dentro del proyecto creado agregar Resource.
 3. En Resource se agregan los mismos campos usados en db.json.
+    - Crear recurso users
+    - Crear recurso tasks
 4. Guardar cambios y obtener el endpoint
-5. Agrgar API_URL al script.
+5. Agrgar API_URL y USERS_URL al script.
 
 ---
 # Ejecución desde el frontend
@@ -88,17 +101,15 @@ Proyecto realizado con fines educativos.
 
 ---
 
-# Checklist de diagnóstico:
+# Objetivos de Aprendizaje Cumplidos
 
-1. Titulo principal h1
+- ISIP03: Análisis de vulnerabilidades en almacenamiento local y mitigación de riesgos.
 
-2. Dos contenedores
+- ISIP06: Implementación de esquemas de autorización y autenticación simulada.
 
-3. Un campo de entrada Input
+- Desarrollo Frontend: Consumo de APIs RESTful y gestión de estados de usuario.
 
-4. Botones para agregar y eliminar tareas
-
-5. Una lista de tareas y un párrafo p
+---
 
 # Prueba el proyecto Webapi aqui:
 
