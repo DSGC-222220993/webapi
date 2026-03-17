@@ -1,5 +1,6 @@
 //const API_URL = "http://localhost:3000/tasks"; //local
 const API_URL = "https://69aece6ac8b37f49983696e1.mockapi.io/tasks"; 
+const USERS_URL = "https://69aece6ac8b37f49983696e1.mockapi.io/users";
 
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
@@ -30,20 +31,31 @@ function checkAuth() {
     }
 }
 
-async function login(){
-    const user = userInput.value;
-    const pass = passInput.value;
+async function login() {
+    const typedUser = userInput.value;
+    const typedPass = passInput.value;
 
-    if(user === "admin" && pass === "password"){
-        const fakeToken = btoa(JSON.stringify({ user: user, date: Date.now() }));
-        localStorage.setItem("token", fakeToken);
-        
-        userInput.value = "";
-        passInput.value = "";
-        showMessage("Login exitoso.");
-        checkAuth();
-    } else{
-        showMessage("Credenciales incorrectas.");
+    try {
+        const response = await fetch(USERS_URL);
+        const users = await response.json();
+
+        const validUser = users.find(u => (u.user === typedUser || u.email === typedUser) && u.password === typedPass);
+
+        if (validUser || (typedUser === "admin" && typedPass === "password")) {
+            const sessionName = validUser ? (validUser.user || validUser.email) : "admin";
+            
+            const fakeToken = btoa(JSON.stringify({ user: sessionName, exp: Date.now() + 3600000 }));
+            localStorage.setItem("token", fakeToken);
+            
+            userInput.value = "";
+            passInput.value = "";
+            showMessage("Login exitoso. ¡Bienvenido!");
+            checkAuth();
+        } else {
+            showMessage("Credenciales incorrectas.");
+        }
+    } catch (error) {
+        showMessage("Error al conectar con el servidor de usuarios.");
     }
 }
 
@@ -53,33 +65,19 @@ function logout(){
     checkAuth();
 }
 
-
-
 // GET
-async function loadTasks(){
-    const token= localStorage.getItem("token");
+async function loadTasks() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-    if(!token){
-        showMessage("Debes iniciar sesión para cargar las tareas.");
-        return;
-    }
-
-    try{
+    try {
         const response = await fetch(API_URL, {
-            headers: {
-                "Authorization": `Bearer ${token}` 
-            }
+            headers: { "Authorization": `Bearer ${token}` }
         });
-
-        if(!response.ok){
-            throw new Error("Error al consultar la API");
-        }
-
         const tasks = await response.json();
-
         renderTasks(tasks);
     } catch (error) {
-        showMessage("No se pudieron cargar las tareas.");
+        showMessage("Error al cargar tareas.");
     }
 }
 
@@ -103,69 +101,48 @@ function renderTasks(tasks) {
 
 // POST
 async function addTask() {
-
     const title = taskInput.value;
-
-    if (title.trim() === "") {
-        showMessage("No puedes agregar una tarea vacía.");
-        return;
-    }
-
-    const newTask = {
-        title: title,
-        completed: false
-    };
+    if (!title.trim()) return showMessage("Escribe algo primero.");
 
     const token = localStorage.getItem("token");
+    const newTask = { title, completed: false };
 
-    try{
-        const response= await fetch(API_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(newTask)
-    });
-    if (response.ok) {
-            taskInput.value = "";
-            loadTasks();
-            showMessage("Tarea agregada.");
-        }
+    try {
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(newTask)
+        });
+        taskInput.value = "";
+        loadTasks();
+        showMessage("Tarea agregada.");
     } catch (error) {
-        showMessage("Error al agregar.");
+        showMessage("Error al guardar.");
     }
-
 }
 
 // DELETE
 async function deleteTask(id) {
-    const token = localStorage.getItem("token"); 
+    const token = localStorage.getItem("token");
     try {
-        const response = await fetch(`${API_URL}/${id}`, {
+        await fetch(`${API_URL}/${id}`, {
             method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` } 
+            headers: { "Authorization": `Bearer ${token}` }
         });
-
-        if (response.ok) {
-            loadTasks();
-            showMessage("Tarea eliminada.");
-        }
+        loadTasks();
+        showMessage("Eliminado.");
     } catch (error) {
-        showMessage("Error al eliminar.");
+        showMessage("Error al borrar.");
     }
 }
 
-function showMessage(text){
+function showMessage(text) {
     statusMessage.textContent = text;
-
-    if(messageTimer){
-        clearTimeout(messageTimer);
-    }
-
-    messageTimer=setTimeout(() => {
-        statusMessage.textContent = "";
-    }, 10000);
+    if (messageTimer) clearTimeout(messageTimer);
+    messageTimer = setTimeout(() => statusMessage.textContent = "", 4000);
 }
 
 loginBtn.addEventListener("click", login);
