@@ -11,18 +11,23 @@
 
     <div class="container">
         <h1>Task Manager API</h1>
-
-        <div class="task-input">
-            <input type="text" id="taskInput" placeholder="Escribe una nueva tarea">
-            <button id="addBtn">Agregar</button>
+        
+        <div id="authSection">
+            <input type="user" id="userInput" placeholder="Usuario">
+            <input type="password" id="passInput" placeholder="Contrasena">
+            <button id="loginBtn">Ingresar</button>
         </div>
 
-        <p id="statusMessage"></p>
-
-        <p id="emptyMessage">No hay tareas pendientes.</p>
-
-        <ul id="taskList"></ul>
+        <div id="mainApp" style="display: none;">
+            <button id="logoutBtn" style="float: right;">Cerrar Sesión</button>
+            <div class="task-input">
+                <input type="text" id="taskInput" placeholder="Escribe una nueva tarea">
+                <button id="addBtn">Agregar</button>
+            </div>
+            <p id="emptyMessage">No hay tareas pendientes.</p>
+            <ul id="taskList"></ul>
     </div>
+    <p id="statusMessage"></p>
 
     <script src="script.js"></script>
 </body>
