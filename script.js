@@ -7,28 +7,69 @@ const taskList = document.getElementById("taskList");
 const emptyMessage = document.getElementById("emptyMessage");
 const statusMessage = document.getElementById("statusMessage");
 
+//autenticacion
+const authSection = document.getElementById("authSection");
+const mainApp = document.getElementById("mainApp");
+const userInput = document.getElementById("userInput");
+const passInput = document.getElementById("passInput");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
 let messageTimer = null;
 
-window.addEventListener("DOMContentLoaded", loadTasks);
-
-function showMessage(text){
-    statusMessage.textContent = text;
-
-    if(messageTimer){
-        clearTimeout(messageTimer);
+function checkAuth() {
+    const token = localStorage.getItem("token");
+     if (token) {
+        authSection.style.display = "none";
+        mainApp.style.display = "block";
+        loadTasks(); 
+    } else {
+        authSection.style.display = "block";
+        mainApp.style.display = "none";
+        taskList.innerHTML = "";  
     }
-
-    messageTimer=setTimeout(() => {
-        statusMessage.textContent = "";
-    }, 10000);
 }
+
+async function login(){
+    const user = userInput.value;
+    const pass = passInput.value;
+
+    if(user === "admin" && pass === "password"){
+        const fakeToken = btoa(JSON.stringify({ user: user, date: Date.now() }));
+        localStorage.setItem("token", fakeToken);
+        
+        userInput.value = "";
+        passInput.value = "";
+        showMessage("Login exitoso.");
+        checkAuth();
+    } else{
+        showMessage("Credenciales incorrectas.");
+    }
+}
+
+function logout(){
+    localStorage.removeItem("token");
+    showMessage("Has cerrado sesión.");
+    checkAuth();
+}
+
+
 
 // GET
 async function loadTasks(){
+    const token= localStorage.getItem("token");
+
+    if(!token){
+        showMessage("Debes iniciar sesión para cargar las tareas.");
+        return;
+    }
 
     try{
-
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, {
+            headers: {
+                "Authorization": `Bearer ${token}` 
+            }
+        });
 
         if(!response.ok){
             throw new Error("Error al consultar la API");
@@ -36,37 +77,28 @@ async function loadTasks(){
 
         const tasks = await response.json();
 
-        taskList.innerHTML = "";
-
-        if(tasks.length === 0){
-            emptyMessage.style.display = "block";
-            emptyMessage.textContent = "No hay tareas registradas";
-            return;
-        }
-
-        emptyMessage.style.display = "none";
-
-        tasks.forEach(task => {
-
-            const li = document.createElement("li");
-
-            li.innerHTML = `
-                ${task.title}
-                <button class="delete-btn" data-id="${task.id}">
-                    Eliminar
-                </button>
-            `;
-
-            taskList.appendChild(li);
-
-        });
-
-    }catch(error){
-
-        showMessage("No se pudo conectar con la API.");
-
+        renderTasks(tasks);
+    } catch (error) {
+        showMessage("No se pudieron cargar las tareas.");
     }
+}
 
+function renderTasks(tasks) {
+    taskList.innerHTML = "";
+    if (tasks.length === 0) {
+        emptyMessage.style.display = "block";
+        return;
+    }
+    emptyMessage.style.display = "none";
+
+    tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${task.title}
+            <button class="delete-btn" data-id="${task.id}">Eliminar</button>
+        `;
+        taskList.appendChild(li);
+    });
 }
 
 // POST
@@ -84,61 +116,65 @@ async function addTask() {
         completed: false
     };
 
+    const token = localStorage.getItem("token");
+
     try{
         const response= await fetch(API_URL, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(newTask)
     });
-    if(!response.ok){
-            throw new Error("Error al agregar tarea");
+    if (response.ok) {
+            taskInput.value = "";
+            loadTasks();
+            showMessage("Tarea agregada.");
         }
-
-        showMessage("Tarea agregada correctamente.");
-
-        taskInput.value="";
-
-        loadTasks();
-
-    }catch(error){
-
-        showMessage("No se pudo agregar la tarea.");
-
+    } catch (error) {
+        showMessage("Error al agregar.");
     }
 
 }
 
 // DELETE
-async function deleteTask(id){
-    try{
-        const response = await fetch(`${API_URL}/${id}`,{
-
-            method:"DELETE"
+async function deleteTask(id) {
+    const token = localStorage.getItem("token"); 
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` } 
         });
 
-        if(!response.ok){
-            throw new Error("Error al eliminar tarea");
+        if (response.ok) {
+            loadTasks();
+            showMessage("Tarea eliminada.");
         }
-
-        showMessage("Tarea eliminada.");
-        loadTasks();
-
-    }catch(error){
-
-        showMessage("No se pudo eliminar la tarea.");
-
+    } catch (error) {
+        showMessage("Error al eliminar.");
     }
-
 }
 
+function showMessage(text){
+    statusMessage.textContent = text;
 
+    if(messageTimer){
+        clearTimeout(messageTimer);
+    }
+
+    messageTimer=setTimeout(() => {
+        statusMessage.textContent = "";
+    }, 10000);
+}
+
+loginBtn.addEventListener("click", login);
+logoutBtn.addEventListener("click", logout);
 addBtn.addEventListener("click", addTask);
-
-taskList.addEventListener("click", function(e){
-    if(e.target.classList.contains("delete-btn")){
-        const id = e.target.getAttribute("data-id");
-        deleteTask(id);
+taskList.addEventListener("click", (e) => {
+    if (e.target.classList.contains("delete-btn")) {
+        deleteTask(e.target.getAttribute("data-id"));
     }
 });
+
+window.addEventListener("DOMContentLoaded", checkAuth);
