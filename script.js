@@ -91,7 +91,7 @@ async function loadTasks() {
         const tasks = await response.json();
         renderTasks(tasks);
     } catch (error) {
-        showMessage("Error al cargar tus tareas.");
+        showMessage("Cargando tareas...");
     }
 }
 
